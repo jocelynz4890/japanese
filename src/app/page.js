@@ -5,7 +5,7 @@ import ChatBox from "./components/ChatBox";
 
 export default function Home() {
   return (
-    <div className="flex flex-row w-full h-full">
+    <div className="flex flex-row w-full h-full overflow-hidden">
       <Lessons/>
       <div className="flex flex-col w-full">
         <Presets></Presets>
