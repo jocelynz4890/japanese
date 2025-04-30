@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import ReactMarkdown from 'react-markdown';
 
 export default function ChatBox({ studentId, chatName = "default" }) {
   const [messages, setMessages] = useState([]);
@@ -89,7 +90,7 @@ export default function ChatBox({ studentId, chatName = "default" }) {
               msg.role === "user" ? "bg-blue-600 text-white self-end" : "bg-gray-800 text-white self-start"
             }`}
           >
-            {msg.content}
+            <ReactMarkdown>{msg.content}</ReactMarkdown>
           </div>
         ))}
         <div ref={messagesEndRef} />
