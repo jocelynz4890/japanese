@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import Provider from "./provider";
 import "./globals.css";
 import Header from "./components/Header";
 
@@ -14,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Japanese Learning Website",
-  description: "[insert description]",
+  description: "AI-assisted Japanese Learning",
 };
 
 export default function RootLayout({ children }) {
@@ -23,10 +24,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-full w-full overflow-hidden`}
       >
-        <Header></Header>
-        <div className="h-[calc(100vh-4rem)]">
-          {children}
-        </div>
+        <Provider>
+          <Header></Header>
+          <div className="h-[calc(100vh-4rem)]">
+              {children}
+          </div>
+        </Provider>
       </body>
     </html>
   );
