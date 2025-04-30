@@ -24,7 +24,7 @@ export default async function Home() {
         <Presets />
         <div className="flex flex-row w-full h-full">
           <Timeline />
-          <ChatBox chatId="placeholder" />
+          <ChatBox studentId={session.user.id} chatName = "default" />
         </div>
       </div>
     </div>

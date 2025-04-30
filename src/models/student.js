@@ -14,7 +14,14 @@ const StudentSchema = new mongoose.Schema({
         }
     ],
     progressionOverTime: [ { timestamp: String, update: Number} ],
-    chat: [ {name: String, messages: [{ type: String }], lastUpdate: String} ]
+    chat: [ {name: String, messages: [
+        {
+            role: { type: String, required: true }, // 'user' or 'assistant'
+            content: { type: String, required: true }, // message content
+            refusal: { type: mongoose.Schema.Types.Mixed, default: null },
+            annotations: { type: [mongoose.Schema.Types.Mixed], default: [] }
+        }
+    ], lastUpdate: String} ]
 });
 
 // avoid redefining the model during hot reload

@@ -9,7 +9,8 @@ export default function TeacherDashboard(){
                 <ChatBox chatId="placeholder"></ChatBox>
             </div>
             </div> */}
-            teacher page
+            TODO: add/delete/name classes
+            TODO: see class view and individual student view
         </div>
     )
 }
