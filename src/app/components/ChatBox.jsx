@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from "react-markdown";
 
 export default function ChatBox({ studentId, chatName = "default" }) {
   const [messages, setMessages] = useState([]);
@@ -59,7 +59,6 @@ export default function ChatBox({ studentId, chatName = "default" }) {
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
 
-      // Ensure the reply from the server matches the expected schema
       const reply = {
         role: data.reply.role || "assistant",
         content: data.reply.content || "",
@@ -82,7 +81,7 @@ export default function ChatBox({ studentId, chatName = "default" }) {
 
   return (
     <div style={{ borderColor: "var(--foreground)" }} className="flex flex-col border w-full h-full">
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+      <div className="flex-1 overflow-y-auto p-4 space-y-2" style={{ maxHeight: "500px" }}>
         {messages.map((msg, idx) => (
           <div
             key={idx}
@@ -93,6 +92,12 @@ export default function ChatBox({ studentId, chatName = "default" }) {
             <ReactMarkdown>{msg.content}</ReactMarkdown>
           </div>
         ))}
+
+        {loading && (
+          <div className="p-2 rounded bg-gray-800 text-white self-start animate-pulse">
+            <em>Teacher is typing...</em>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -104,7 +109,11 @@ export default function ChatBox({ studentId, chatName = "default" }) {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."
         />
-        <button type="submit" disabled={loading} className="bg-blue-600 text-white px-4 py-1 rounded disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-1 rounded disabled:opacity-50"
+        >
           {loading ? "..." : "Send"}
         </button>
       </form>

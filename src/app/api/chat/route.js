@@ -49,6 +49,11 @@ export async function POST(req) {
     const body = await req.json();
     const { studentId, chatName = "default", messages } = body;
 
+    // Save the chat reply to the student's record
+    await connectToDB();
+    const student = await Student.findById(studentId);
+    const now = new Date().toISOString();
+
     // Ensure the request includes a studentId and messages
     if (!studentId || !messages) {
         return NextResponse.json({ error: "Invalid request data" }, { status: 400 });
@@ -57,24 +62,19 @@ export async function POST(req) {
     // Add system message to the conversation
     const conversation = [
         { 
-        role: 'system', 
-        content: 'You are a specialized Japanese language learning assistant. Your purpose is to help learners improve their Japanese language skills through interactive, level-appropriate instruction. You may format your replies with markdown.' 
+        role: 'system', // TODO: add presets to system prompt
+        content: `You are a Japanese tutor for Genki Vols 1-2. This is your student's lesson progress: ${formatLessonsForLLM(student.lessons)}. Format your replies with markdown. Be as concise as possible-- do not give feedback other than right or wrong.` 
         },
         ...messages, 
     ];
 
     try {
     const chatCompletion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: conversation,
+      model: 'gpt-4o',
+      messages: conversation.slice(-3), // truncate bc token limit
     });
 
     const reply = chatCompletion.choices[0].message;
-
-    // Save the chat reply to the student's record
-    await connectToDB();
-    const student = await Student.findById(studentId);
-    const now = new Date().toISOString();
 
     // Find the chat by name or create a new one
     const chatIndex = student.chat.findIndex(c => c.name === chatName);
@@ -99,34 +99,36 @@ export async function POST(req) {
      * PROGRESS DELTA
      */
     const progressCompletion = await openai.chat.completions.create({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o",
         messages: [
             {
-                role: "system",
-                content: `You are a Japanese learning evaluator. Each lesson has vocabulary/grammar mapped to a number representing progress (0-100). 
+                role: "system", 
+                content: `You return a progress delta JSON. Each lesson has vocabulary/grammar mapped to a number representing progress (0-100). 
                 Below is the student's current lesson progress:
                 ${formatLessonsForLLM(student.lessons)}
                 
-                Based on the last student message and the progress so far (note that there may not necessarily need to be a change in
-                progress), return ONLY a JSON array, with no markdown formatting, with the corresponding lesson, vocab/grammar, and your evaluated delta values of 0–100 like:
+                Based on the last student response and the progress so far (note that there may not necessarily need to be a change in
+                progress), return ONLY a JSON array, with no markdown formatting, with the corresponding lesson, practiced vocab/grammar, and your evaluated delta values of 0–100 the progress the student made on each, as below:
                     [
                         { "lesson": 3, "English": "eat", "Japanese": "食べる", "delta": 5 },
                         { "lesson": 3, "English": "apple", "Japanese": "りんご", "delta": -2 }
-                    ]`
+                    ]
+                        
+                    Again, return ONLY a JSON array. `
             },
-            { role: "user", content: message },
+            ...conversation.slice(-3), // truncating conversation history a bit bc token limit
         ],
-        response_format: "json",
     });
+
+    console.log(progressCompletion.choices[0].message.content);
 
     let progressUpdates = [];
     try {
         progressUpdates = JSON.parse(progressCompletion.choices[0].message.content || "[]");
         
         // apply updates to db
+        // TODO: handle edge cases like if the user explicitly asks for a certain amount of progress
         if (progressUpdates.length > 0) {
-            const student = await Student.findOne({ _id: session.user.id });
-
             if (student) {
                 for (const update of progressUpdates) {
                     const { lesson, English, Japanese, delta } = update;
