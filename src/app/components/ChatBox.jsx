@@ -17,7 +17,6 @@ export default function ChatBox({ chatId }) {
     async function loadChat() {
         try {
             const res = await fetch(`/api/chat?chatId=${chatId}`)
-            // Check if response is ok (status 2xx)
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`)
             }
@@ -70,7 +69,7 @@ export default function ChatBox({ chatId }) {
     }, [messages])
 
   return (
-    <div className="flex flex-col border border-white w-full h-full">
+    <div style={{ borderColor: 'var(--foreground)' }} className="flex flex-col border w-full h-full">
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {messages.map((msg, idx) => (
           <div
@@ -89,10 +88,12 @@ export default function ChatBox({ chatId }) {
 
       <form
         onSubmit={sendMessage}
-        className="flex border-t border-white p-2 gap-2"
+        style={{ borderColor: 'var(--foreground)' }}
+        className="flex border-t p-2 gap-2"
       >
         <input
-          className="flex-1 bg-transparent border border-white rounded px-2 py-1 text-white"
+          style={{ borderColor: 'var(--foreground)' }}
+          className="flex-1 bg-transparent border rounded px-2 py-1 text-white"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."

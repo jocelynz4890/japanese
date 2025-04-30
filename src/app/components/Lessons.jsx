@@ -45,7 +45,7 @@ export default function Lessons() {
     }
 
     return (
-        <div className="flex flex-col border-r border-white w-1/2 h-full overflow-y-auto">
+        <div style={{ borderColor: 'var(--foreground)' }} className="flex flex-col border-r w-1/2 h-full overflow-y-auto">
         <hr />
 
         {/* List of lessons */}
