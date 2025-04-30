@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 export default function ChatBox({ studentId, chatName = "default" }) {
   const [messages, setMessages] = useState([]);
@@ -89,7 +91,7 @@ export default function ChatBox({ studentId, chatName = "default" }) {
               msg.role === "user" ? "bg-blue-600 text-white self-end" : "bg-gray-800 text-white self-start"
             }`}
           >
-            <ReactMarkdown>{msg.content}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{msg.content}</ReactMarkdown>
           </div>
         ))}
 
